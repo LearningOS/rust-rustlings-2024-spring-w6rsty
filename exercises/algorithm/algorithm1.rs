@@ -35,7 +35,7 @@ impl<T> Default for LinkedList<T> {
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T: std::cmp::PartialOrd> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -71,12 +71,22 @@ impl<T> LinkedList<T> {
     }
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
 	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+        let mut result = LinkedList::<T>::new();
+        let mut node_a = 0;
+        let mut node_b = 0;
+        while node_a < list_a.length || node_b < list_b.length {
+            let val_a = list_a.get(node_a).unwrap_or(&std::cmp::max_value());
+            let val_b = list_b.get(node_b).unwrap_or(&std::cmp::max_value());
+            if val_a < val_b {
+                result.add(*val_a);
+                node_a += 1;
+            } else {
+                result.add(*val_b);
+                node_b += 1;
+            }
         }
+
+        result
 	}
 }
 
