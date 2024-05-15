@@ -3,11 +3,38 @@
 	This problem requires you to implement a sorting algorithm
 	you can use bubble sorting, insertion sorting, heap sorting, etc.
 */
-// I AM NOT DONE
 
-fn sort<T>(array: &mut [T]){
-	//TODO
+fn partition<T: Ord + Clone>(arr: &mut [T]) -> usize {
+    let pivot = arr[0].clone();
+    let mut l = 1;
+    let mut r = arr.len() - 1;
+    while l <= r {
+        if arr[l] > pivot && arr[r] < pivot {
+            arr.swap(l, r);
+            l += 1;
+            r -= 1;
+        } else {
+            if arr[l] <= pivot {
+                l += 1;
+            } else {
+                r -= 1;
+            }
+        }
+    }
+    arr.swap(0, r);
+    r
 }
+
+fn sort<T: Ord + Clone>(array: &mut [T]){
+    let length =  array.len();
+    if length <= 1 {
+        return;
+    }
+    let p = partition(array);
+    sort(&mut array[0..p]);
+    sort(&mut array[p + 1..length]);
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

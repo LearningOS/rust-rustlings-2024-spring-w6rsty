@@ -2,11 +2,9 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
-use std::vec::*;
 
 #[derive(Debug)]
 struct Node<T> {
@@ -35,7 +33,7 @@ impl<T> Default for LinkedList<T> {
     }
 }
 
-impl<T: std::cmp::PartialOrd> LinkedList<T> {
+impl<T> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -69,24 +67,40 @@ impl<T: std::cmp::PartialOrd> LinkedList<T> {
             },
         }
     }
+
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+    where T: PartialOrd + Copy
 	{
-        let mut result = LinkedList::<T>::new();
-        let mut node_a = 0;
-        let mut node_b = 0;
-        while node_a < list_a.length || node_b < list_b.length {
-            let val_a = list_a.get(node_a).unwrap_or(&std::cmp::max_value());
-            let val_b = list_b.get(node_b).unwrap_or(&std::cmp::max_value());
-            if val_a < val_b {
-                result.add(*val_a);
-                node_a += 1;
-            } else {
-                result.add(*val_b);
-                node_b += 1;
+        let mut merged_list = LinkedList::new();
+        let mut node_a = list_a.start;
+        let mut node_b = list_b.start; 
+
+        while node_a.is_some() || node_b.is_some() {
+            let node_val_a = node_a.map(|ptr| unsafe { (*ptr.as_ptr()).val });
+            let node_val_b = node_b.map(|ptr| unsafe { (*ptr.as_ptr()).val });
+
+            match (node_val_a, node_val_b) {
+                (Some(val_a), Some(val_b)) => {
+                    if val_a <= val_b {
+                        merged_list.add(val_a);
+                        node_a = unsafe { (*node_a.unwrap().as_ptr()).next };
+                    } else {
+                        merged_list.add(val_b);
+                        node_b = unsafe { (*node_b.unwrap().as_ptr()).next };
+                    }
+                },
+                (Some(val_a), None) => {
+                    merged_list.add(val_a);
+                    node_a = unsafe { (*node_a.unwrap().as_ptr()).next };
+                },
+                (None, Some(val_b)) => {
+                    merged_list.add(val_b);
+                    node_b = unsafe { (*node_b.unwrap().as_ptr()).next };
+                },
+                (None, None) => break,
             }
         }
-
-        result
+        merged_list
 	}
 }
 
